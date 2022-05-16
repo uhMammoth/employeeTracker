@@ -17,6 +17,7 @@ app.use((req, res) => {
     res.status(404).end();
 });
 
+// starts server after database connection
 db.connect(err => {
     if(err) throw err;
     console.log('Database connected.');
