@@ -31,3 +31,5 @@ WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
 ## Mock Up
+![database structure](./assets/12-sql-homework-demo-01.png)
+![inquirer example](./assets/12-sql-homework-video-thumbnail.png)
