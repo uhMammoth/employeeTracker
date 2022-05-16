@@ -8,9 +8,6 @@ db.connect(err => {
     console.log('Database connected.');
 });
 
-
-// const addEmployee = [{}];
-
 function promptHandler(){
     const choices = ['View All Departments','View All Roles','View All Employees','Add Department','Add Role','Add Employee','Update An Employees Role', 'Exit'];
     inquirer.prompt([{
@@ -34,13 +31,16 @@ function promptHandler(){
                 viewAll(sql);
                 break;
             case 'Add Department':
-                addDepartment();
+                sql = `INSERT INTO departments (name) VALUES (?)`;
+                addDepartment(sql);
                 break;
             case 'Add Role':
-                addRole();
+                sql = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
+                addRole(sql);
                 break;
             case 'Add Employee':
-        
+                sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+                addEmployee(sql);
                 break;
             case 'Update An Employees Role':
 
@@ -52,8 +52,7 @@ function promptHandler(){
     }); 
 };
 
-function addDepartment(){
-    const sql = `INSERT INTO departments (name) VALUES (?)`;
+function addDepartment(sql){
     inquirer.prompt({
         type: 'input',
         name: 'departmentName',
@@ -66,25 +65,53 @@ function addDepartment(){
                 console.log(err);
                 return;
             }
+            console.log('Department added!');
         });
         promptHandler();
     });    
 };
 
-function addRole(){
-    const addRole = [{
+function addRole(sql){
+    
+    let choices = [];
+    db.query(`SELECT * FROM departments`, (err, rows) => {
+        if(err){
+            console.log(err);
+            return;
+        }
+        for (let i = 0; i < rows.length; i++) {            
+            choices[i] = {value: rows[i].id, name: rows[i].name};
+        }
+    });
+    inquirer.prompt([{
         type: 'text',
-        name: 'roleName',
-        message: 'Enter The New Role: '
+        name: 'title',
+        message: 'Enter Title Of New Role: '
     },{
         type: 'text',
         name: 'salary',
-        message: 'Enter Salary For This Role: '
-    },];
-    inquirer.prompt({
-        
-    })
-    .then()
+        message: 'Enter Salary For This Role: $'
+    },{
+        type: 'list',
+        name: 'department_id',
+        message: 'Choose The Department For This Role: ',
+        choices: choices
+    }])
+    .then(answers => {
+        let role = [answers.title, answers.salary, answers.department_id];
+        db.query(sql, role, (err, rows) => {
+            if(err){
+                console.log(err);
+                return;
+            }
+            console.log('Role added!');
+        });
+        promptHandler();
+    });
+};
+
+function addEmployee(sql){
+    
 };
 
 function viewAll(sql){
